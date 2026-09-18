@@ -2,8 +2,23 @@
 Kraken public OHLC ingestion (no auth required).
 
 Endpoint: GET https://api.kraken.com/0/public/OHLC
-Returns up to 720 candles per call. We page forward using the response's
-"last" field as the next `since` until no new candles come back.
+
+IMPORTANT PLATFORM LIMIT (confirmed against Kraken's own docs, and by a
+live run of this exact function that returned exactly 721 rows no matter
+how far back `since` was set):
+
+    "Returns up to 720 of the most recent entries (older data cannot be
+    retrieved, regardless of the value of `since`)."
+
+There is NO pagination path to deep history on this endpoint -- passing an
+older `since` does not unlock older candles, it's simply ignored past that
+~720-candle floor. This function's pagination loop is technically correct
+(it will terminate cleanly either way) but on a real request it will only
+ever return the most recent ~720 daily candles (~2 years), regardless of
+`since`. See docs/RESEARCH_SPEC.md \u00a72.1 -- Kraken is a recent-period
+cross-check only in this project, NOT the full-history primary source.
+Coinbase's /candles endpoint (coinbase.py) is what actually paginates back
+to 2014.
 
 Docs: https://docs.kraken.com/api/docs/rest-api/get-ohlc-data
 """

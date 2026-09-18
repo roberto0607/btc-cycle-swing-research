@@ -25,10 +25,16 @@ from src.data.ingestion.schema import write_raw
 
 RAW_DIR = Path(__file__).resolve().parents[3] / "data" / "raw"
 
-# RESEARCH_SPEC.md \u00a72.1: primary dataset starts 2014-01-01. Kraken's API
-# treats an omitted `since` as "most recent ~720 candles", NOT "earliest
-# available" -- so we must always pass an explicit since, or a plain
-# `run_ingestion.py --source kraken` silently only pulls the last ~2 years.
+# RESEARCH_SPEC.md section 2.1: primary dataset starts 2014-01-01.
+#
+# NOTE: passing this as `since` to Kraken does NOT get you full history --
+# Kraken's OHLC endpoint has a hard platform limit and only ever returns
+# the most recent ~720 daily candles regardless of `since` (see the long
+# comment at the top of kraken.py). We still pass it, for two reasons:
+# it's harmless (Kraken just ignores it past its own floor), and it's the
+# correct value for Coinbase, which genuinely honors it. Kraken is a
+# recent-period cross-check only in this project -- see RESEARCH_SPEC.md
+# section 2.1's 2026-09-18 correction note.
 DEFAULT_START = dt.datetime(2014, 1, 1, tzinfo=dt.timezone.utc)
 
 

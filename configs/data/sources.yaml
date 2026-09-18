@@ -1,17 +1,25 @@
 # Data source configuration — Phase 1
 # Both sources are free, no-auth, US-accessible public REST endpoints.
-
-kraken:
-  base_url: "https://api.kraken.com/0/public"
-  pair: "XBTUSD"
-  interval_minutes: 1440   # daily
-  role: "primary"
+#
+# CORRECTED 2026-09-18: Kraken's public OHLC endpoint has a hard platform
+# limit -- it only ever returns the most recent ~720 daily candles,
+# regardless of `since` (confirmed in Kraken's own API docs and by a live
+# run that returned exactly 721 rows no matter how far back `since` was
+# set). It cannot serve as the full-history primary source. Coinbase's
+# /candles endpoint genuinely paginates back to 2014-01-01 and is now
+# primary; Kraken is a recent-period-only cross-check.
 
 coinbase:
   base_url: "https://api.exchange.coinbase.com"
   product_id: "BTC-USD"
   granularity_seconds: 86400   # daily
-  role: "cross_validation"
+  role: "primary"
+
+kraken:
+  base_url: "https://api.kraken.com/0/public"
+  pair: "XBTUSD"
+  interval_minutes: 1440   # daily
+  role: "cross_validation_recent_only"   # only ~720 most recent days available
 
 date_range:
   start: "2014-01-01"
