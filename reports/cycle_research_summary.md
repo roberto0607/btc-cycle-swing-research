@@ -33,38 +33,40 @@ Rows = today's regime, columns = tomorrow's regime. Diagonal = stickiness.
 
 Compare each regime's row against the 'ALL' (unconditional) row. If they don't look meaningfully different, this regime scheme isn't adding information over just looking at the whole series -- that's a valid, useful research conclusion, not a failure.
 
+**Confidence caveat:** `n_distinct_years` and `max_single_year_share` show how spread out each row's sample actually is. A regime/horizon combination with few distinct years, or a high max_single_year_share, is more likely reflecting one historical episode than a repeatable pattern (RESEARCH_SPEC.md section 47 -- BTC has few independent cycles). Rows flagged CONCENTRATED below have max_single_year_share ≥ 40%: read their numbers as a real but not-yet-confirmed lead, not an established result.
+
 ### 14-day forward horizon
-| regime | n | mean_forward_return | median_forward_return | std_forward_return | pct_with_pullback_ge_10pct | pct_with_pullback_ge_20pct |
-|---|---|---|---|---|---|---|
-| ALL | 3866 | 0.0288 | 0.0142 | 0.1421 | 0.2212 | 0.0618 |
-| ACCUMULATION | 179 | 0.0174 | 0.0164 | 0.1144 | 0.1899 | 0.0615 |
-| BEAR | 899 | 0.0075 | 0.0063 | 0.1250 | 0.2303 | 0.0712 |
-| BULL | 1467 | 0.0452 | 0.0186 | 0.1440 | 0.1854 | 0.0423 |
-| DISTRIBUTION | 591 | 0.0061 | 0.0015 | 0.1305 | 0.2792 | 0.0846 |
-| EARLY_RECOVERY | 230 | 0.0089 | 0.0097 | 0.1551 | 0.3391 | 0.1087 |
-| LATE_BULL | 308 | 0.0868 | 0.0470 | 0.1939 | 0.2078 | 0.0779 |
-| LATE_RECOVERY | 192 | 0.0143 | 0.0048 | 0.1010 | 0.1823 | 0.0156 |
+| regime | n | mean_forward_return | median_forward_return | std_forward_return | pct_with_pullback_ge_10pct | pct_with_pullback_ge_20pct | n_distinct_years | max_single_year_share | confidence |
+|---|---|---|---|---|---|---|---|---|---|
+| ALL | 3866 | 0.0288 | 0.0142 | 0.1421 | 0.2212 | 0.0618 | 11 | 0.0947 | ok |
+| ACCUMULATION | 179 | 0.0174 | 0.0164 | 0.1144 | 0.1899 | 0.0615 | 5 | 0.5084 | CONCENTRATED |
+| BEAR | 899 | 0.0075 | 0.0063 | 0.1250 | 0.2303 | 0.0712 | 7 | 0.3081 | ok |
+| BULL | 1467 | 0.0452 | 0.0186 | 0.1440 | 0.1854 | 0.0423 | 10 | 0.1506 | ok |
+| DISTRIBUTION | 591 | 0.0061 | 0.0015 | 0.1305 | 0.2792 | 0.0846 | 9 | 0.1726 | ok |
+| EARLY_RECOVERY | 230 | 0.0089 | 0.0097 | 0.1551 | 0.3391 | 0.1087 | 5 | 0.2913 | ok |
+| LATE_BULL | 308 | 0.0868 | 0.0470 | 0.1939 | 0.2078 | 0.0779 | 6 | 0.3571 | ok |
+| LATE_RECOVERY | 192 | 0.0143 | 0.0048 | 0.1010 | 0.1823 | 0.0156 | 5 | 0.5521 | CONCENTRATED |
 
 ### 30-day forward horizon
-| regime | n | mean_forward_return | median_forward_return | std_forward_return | pct_with_pullback_ge_10pct | pct_with_pullback_ge_20pct |
-|---|---|---|---|---|---|---|
-| ALL | 3850 | 0.0650 | 0.0284 | 0.2334 | 0.3553 | 0.1499 |
-| ACCUMULATION | 179 | 0.0245 | 0.0129 | 0.1573 | 0.2849 | 0.1341 |
-| BEAR | 899 | 0.0227 | 0.0181 | 0.1797 | 0.3571 | 0.1524 |
-| BULL | 1451 | 0.1012 | 0.0358 | 0.2719 | 0.3349 | 0.1103 |
-| DISTRIBUTION | 591 | 0.0377 | 0.0291 | 0.2203 | 0.4129 | 0.1946 |
-| EARLY_RECOVERY | 230 | 0.0374 | -0.0377 | 0.2110 | 0.4609 | 0.2565 |
-| LATE_BULL | 308 | 0.1467 | 0.1106 | 0.2377 | 0.2857 | 0.1461 |
-| LATE_RECOVERY | 192 | 0.0129 | 0.0167 | 0.1751 | 0.3750 | 0.1927 |
+| regime | n | mean_forward_return | median_forward_return | std_forward_return | pct_with_pullback_ge_10pct | pct_with_pullback_ge_20pct | n_distinct_years | max_single_year_share | confidence |
+|---|---|---|---|---|---|---|---|---|---|
+| ALL | 3850 | 0.0650 | 0.0284 | 0.2334 | 0.3553 | 0.1499 | 11 | 0.0951 | ok |
+| ACCUMULATION | 179 | 0.0245 | 0.0129 | 0.1573 | 0.2849 | 0.1341 | 5 | 0.5084 | CONCENTRATED |
+| BEAR | 899 | 0.0227 | 0.0181 | 0.1797 | 0.3571 | 0.1524 | 7 | 0.3081 | ok |
+| BULL | 1451 | 0.1012 | 0.0358 | 0.2719 | 0.3349 | 0.1103 | 10 | 0.1523 | ok |
+| DISTRIBUTION | 591 | 0.0377 | 0.0291 | 0.2203 | 0.4129 | 0.1946 | 9 | 0.1726 | ok |
+| EARLY_RECOVERY | 230 | 0.0374 | -0.0377 | 0.2110 | 0.4609 | 0.2565 | 5 | 0.2913 | ok |
+| LATE_BULL | 308 | 0.1467 | 0.1106 | 0.2377 | 0.2857 | 0.1461 | 6 | 0.3571 | ok |
+| LATE_RECOVERY | 192 | 0.0129 | 0.0167 | 0.1751 | 0.3750 | 0.1927 | 5 | 0.5521 | CONCENTRATED |
 
 ### 90-day forward horizon
-| regime | n | mean_forward_return | median_forward_return | std_forward_return | pct_with_pullback_ge_10pct | pct_with_pullback_ge_20pct |
-|---|---|---|---|---|---|---|
-| ALL | 3790 | 0.2246 | 0.0938 | 0.5514 | 0.5554 | 0.3430 |
-| ACCUMULATION | 179 | 0.0890 | 0.0409 | 0.3303 | 0.5419 | 0.4972 |
-| BEAR | 870 | 0.0625 | -0.0012 | 0.3382 | 0.6195 | 0.3575 |
-| BULL | 1450 | 0.3284 | 0.2276 | 0.5723 | 0.5000 | 0.2469 |
-| DISTRIBUTION | 591 | 0.2199 | 0.0391 | 0.6886 | 0.6007 | 0.3909 |
-| EARLY_RECOVERY | 230 | 0.2497 | -0.0801 | 0.6082 | 0.6261 | 0.5261 |
-| LATE_BULL | 308 | 0.3967 | 0.2003 | 0.5946 | 0.4221 | 0.2987 |
-| LATE_RECOVERY | 162 | -0.0299 | -0.1604 | 0.3869 | 0.7099 | 0.6049 |
+| regime | n | mean_forward_return | median_forward_return | std_forward_return | pct_with_pullback_ge_10pct | pct_with_pullback_ge_20pct | n_distinct_years | max_single_year_share | confidence |
+|---|---|---|---|---|---|---|---|---|---|
+| ALL | 3790 | 0.2246 | 0.0938 | 0.5514 | 0.5554 | 0.3430 | 11 | 0.0966 | ok |
+| ACCUMULATION | 179 | 0.0890 | 0.0409 | 0.3303 | 0.5419 | 0.4972 | 5 | 0.5084 | CONCENTRATED |
+| BEAR | 870 | 0.0625 | -0.0012 | 0.3382 | 0.6195 | 0.3575 | 7 | 0.3184 | ok |
+| BULL | 1450 | 0.3284 | 0.2276 | 0.5723 | 0.5000 | 0.2469 | 9 | 0.1524 | ok |
+| DISTRIBUTION | 591 | 0.2199 | 0.0391 | 0.6886 | 0.6007 | 0.3909 | 9 | 0.1726 | ok |
+| EARLY_RECOVERY | 230 | 0.2497 | -0.0801 | 0.6082 | 0.6261 | 0.5261 | 5 | 0.2913 | ok |
+| LATE_BULL | 308 | 0.3967 | 0.2003 | 0.5946 | 0.4221 | 0.2987 | 6 | 0.3571 | ok |
+| LATE_RECOVERY | 162 | -0.0299 | -0.1604 | 0.3869 | 0.7099 | 0.6049 | 5 | 0.4691 | CONCENTRATED |

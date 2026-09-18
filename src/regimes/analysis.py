@@ -104,6 +104,16 @@ def regime_conditional_stats(
     unconditional extension-vs-forward-return table: if a regime's row
     here looks meaningfully different from 'ALL', the regime label is
     adding information Milestone 5's unconditional view couldn't see.
+
+    ADDED 2026-09-18: also reports n_distinct_years and
+    max_single_year_share per row -- a finding built mostly from one
+    calendar year isn't yet "confirmed across cycles" (RESEARCH_SPEC.md
+    section 47), even if it isn't literally a single-episode artifact.
+    This surfaced from LATE_RECOVERY's 90d row: touched 5 different
+    years, so not a single-episode fluke, but ~47% of its sample came
+    from one year (2026, the newest/least-tested stretch of data) --
+    real signal, not yet strong evidence. Report readers should treat any
+    row with a high max_single_year_share with the same caution.
     """
     d = df.copy()
     fwd_ret_col = f"_fwd_return_{horizon}d"
@@ -112,10 +122,12 @@ def regime_conditional_stats(
     d[fwd_min_col] = forward_min_return_for_research(d["close"], horizon)
 
     d = d.dropna(subset=["regime", fwd_ret_col, fwd_min_col])
+    d["_year"] = pd.to_datetime(d["timestamp"]).dt.year
 
     groups = [("ALL", d)] + list(d.groupby("regime"))
     rows = []
     for label, group in groups:
+        year_counts = group["_year"].value_counts()
         row = {
             "regime": label,
             "n": len(group),
@@ -125,6 +137,8 @@ def regime_conditional_stats(
         }
         for th in pullback_thresholds:
             row[f"pct_with_pullback_ge_{int(th * 100)}pct"] = (group[fwd_min_col] <= -th).mean()
+        row["n_distinct_years"] = len(year_counts)
+        row["max_single_year_share"] = (year_counts.max() / len(group)) if len(group) else float("nan")
         rows.append(row)
 
     return pd.DataFrame(rows)

@@ -92,10 +92,22 @@ def main() -> None:
         "Compare each regime's row against the 'ALL' (unconditional) row. "
         "If they don't look meaningfully different, this regime scheme "
         "isn't adding information over just looking at the whole series -- "
-        "that's a valid, useful research conclusion, not a failure."
+        "that's a valid, useful research conclusion, not a failure.\n\n"
+        "**Confidence caveat:** `n_distinct_years` and `max_single_year_share` "
+        "show how spread out each row's sample actually is. A regime/horizon "
+        "combination with few distinct years, or a high max_single_year_share, "
+        "is more likely reflecting one historical episode than a repeatable "
+        "pattern (RESEARCH_SPEC.md section 47 -- BTC has few independent "
+        "cycles). Rows flagged CONCENTRATED below have max_single_year_share "
+        "\u2265 40%: read their numbers as a real but not-yet-confirmed lead, not "
+        "an established result."
     )
+    CONCENTRATION_THRESHOLD = 0.40
     for horizon in HORIZONS:
         stats = regime_conditional_stats(df, horizon)
+        stats["confidence"] = stats["max_single_year_share"].apply(
+            lambda x: "CONCENTRATED" if pd.notnull(x) and x >= CONCENTRATION_THRESHOLD else "ok"
+        )
         lines.append(f"\n### {horizon}-day forward horizon")
         lines.append(_render_md_table(stats.round(4)))
 

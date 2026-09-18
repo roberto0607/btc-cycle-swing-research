@@ -179,6 +179,35 @@ def test_regime_conditional_stats_includes_all_baseline_and_regime_rows():
     assert all_n == regime_n_sum
 
 
+def test_regime_conditional_stats_flags_single_year_concentration():
+    """
+    A regime whose entire sample falls in one calendar year should report
+    n_distinct_years=1 and max_single_year_share=1.0 -- the exact signal
+    used to catch the LATE_RECOVERY 90d finding being partly (not wholly)
+    concentrated in one year.
+    """
+    n = 300
+    rng = np.random.default_rng(2)
+    dates_2022 = pd.date_range("2022-01-01", periods=n // 2, freq="D", tz="UTC")
+    dates_spread = pd.date_range("2018-01-01", periods=n // 2, freq="365D", tz="UTC")  # one row per year
+    df = pd.DataFrame(
+        {
+            "close": 100 * np.cumprod(1 + rng.normal(0, 0.01, n)),
+            "timestamp": list(dates_2022) + list(dates_spread),
+            "regime": ["CONCENTRATED_REGIME"] * (n // 2) + ["SPREAD_REGIME"] * (n // 2),
+        }
+    )
+    stats = regime_conditional_stats(df, horizon=14)
+
+    concentrated_row = stats[stats["regime"] == "CONCENTRATED_REGIME"].iloc[0]
+    spread_row = stats[stats["regime"] == "SPREAD_REGIME"].iloc[0]
+
+    assert concentrated_row["n_distinct_years"] == 1
+    assert concentrated_row["max_single_year_share"] == pytest.approx(1.0)
+    assert spread_row["n_distinct_years"] > 1
+    assert spread_row["max_single_year_share"] < concentrated_row["max_single_year_share"]
+
+
 def test_early_vs_late_recovery_split_separates_designed_risk_difference():
     """
     Validates the mechanism behind the EARLY/LATE_RECOVERY split (not a
