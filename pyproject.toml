@@ -1,0 +1,32 @@
+[project]
+name = "btc-cycle-swing-research"
+version = "0.1.0"
+description = "Standalone BTC cycle + swing quantitative research system"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "duckdb>=1.0",
+    "pyarrow>=16.0",
+    "requests>=2.31",
+    "matplotlib>=3.8",
+    "scikit-learn>=1.4",
+    "pydantic>=2.6",
+]
+
+[project.optional-dependencies]
+notebooks = ["jupyter>=1.0", "ipykernel>=6.29"]
+ml = ["xgboost>=2.0", "lightgbm>=4.3"]
+dev = ["pytest>=8.0", "mypy>=1.9", "ruff>=0.4"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true

@@ -1,0 +1,27 @@
+# Data (raw pulls are large and reproducible from ingestion scripts)
+data/raw/*
+data/processed/*
+data/features/*
+data/labels/*
+!data/**/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# Experiment artifacts (large/binary)
+experiments/**/*.parquet
+experiments/**/*.pkl
+reports/**/*.png
