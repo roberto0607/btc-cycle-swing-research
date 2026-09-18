@@ -73,3 +73,29 @@ def test_write_raw_sorts_by_timestamp(tmp_path):
 
     df = pq.read_table(out).to_pandas()
     assert list(df["timestamp"]) == sorted(df["timestamp"])
+
+
+def test_run_kraken_defaults_to_2014_when_no_start_given(monkeypatch):
+    """
+    Regression test for the bug hit on the first live run: Kraken's API
+    treats an omitted `since` as "most recent ~720 candles", not "earliest
+    available" (which silently truncated history to ~2 years). run_kraken()
+    must always pass an explicit since, defaulting to RESEARCH_SPEC's
+    2014-01-01, even when the CLI --start flag is left unset.
+    """
+    from src.data.ingestion import run_ingestion
+
+    captured: dict = {}
+
+    def fake_fetch_ohlc(since=None, **kwargs):
+        captured["since"] = since
+        return []
+
+    monkeypatch.setattr(run_ingestion.kraken, "fetch_ohlc", fake_fetch_ohlc)
+    monkeypatch.setattr(
+        run_ingestion, "write_raw", lambda rows, path: len(rows)
+    )
+
+    run_ingestion.run_kraken(start=None)
+
+    assert captured["since"] == run_ingestion.DEFAULT_START

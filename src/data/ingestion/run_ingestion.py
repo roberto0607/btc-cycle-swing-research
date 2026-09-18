@@ -25,6 +25,12 @@ from src.data.ingestion.schema import write_raw
 
 RAW_DIR = Path(__file__).resolve().parents[3] / "data" / "raw"
 
+# RESEARCH_SPEC.md \u00a72.1: primary dataset starts 2014-01-01. Kraken's API
+# treats an omitted `since` as "most recent ~720 candles", NOT "earliest
+# available" -- so we must always pass an explicit since, or a plain
+# `run_ingestion.py --source kraken` silently only pulls the last ~2 years.
+DEFAULT_START = dt.datetime(2014, 1, 1, tzinfo=dt.timezone.utc)
+
 
 def _parse_date(s: str) -> dt.datetime:
     return dt.datetime.strptime(s, "%Y-%m-%d").replace(tzinfo=dt.timezone.utc)
@@ -32,7 +38,7 @@ def _parse_date(s: str) -> dt.datetime:
 
 def run_kraken(start: dt.datetime | None) -> None:
     print("Fetching Kraken daily BTC-USD OHLC...")
-    rows = kraken.fetch_ohlc(since=start)
+    rows = kraken.fetch_ohlc(since=start or DEFAULT_START)
     n = write_raw(rows, RAW_DIR / "kraken_btc_usd_1d.parquet")
     print(f"  Kraken: fetched {len(rows)} candles this run, {n} total rows on disk.")
 
