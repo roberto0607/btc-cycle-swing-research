@@ -49,7 +49,8 @@ ML vs Deterministic → Paper Validation
 - Kraken public REST (`/0/public/OHLC`) and Coinbase Exchange public
   candles — both free, no-auth, US-accessible. Kraken is the primary
   series; Coinbase is used for cross-validation.
-- Daily BTC-USD OHLCV, 2014-01-01 → present, as the primary dataset.
+- Daily BTC-USD OHLCV, 2015-07-20 → present (Coinbase's earliest available
+  daily candle for this pair), as the primary dataset.
 
 ## Setup
 

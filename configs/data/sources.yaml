@@ -6,8 +6,9 @@
 # regardless of `since` (confirmed in Kraken's own API docs and by a live
 # run that returned exactly 721 rows no matter how far back `since` was
 # set). It cannot serve as the full-history primary source. Coinbase's
-# /candles endpoint genuinely paginates back to 2014-01-01 and is now
-# primary; Kraken is a recent-period-only cross-check.
+# /candles endpoint paginates back to its own earliest available data
+# (confirmed 2015-07-20 for BTC-USD daily, per Milestone 3 validation) and
+# is now primary; Kraken is a recent-period-only cross-check.
 
 coinbase:
   base_url: "https://api.exchange.coinbase.com"
@@ -22,5 +23,8 @@ kraken:
   role: "cross_validation_recent_only"   # only ~720 most recent days available
 
 date_range:
-  start: "2014-01-01"
+  start: "2014-01-01"   # requested start; harmless to request earlier than
+                         # a source's actual data floor -- Coinbase simply
+                         # returns from its true earliest date (2015-07-20
+                         # confirmed for BTC-USD daily), nothing errors.
   end: null   # null = through present, re-pulled on each run

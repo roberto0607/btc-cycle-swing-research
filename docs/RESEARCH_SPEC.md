@@ -39,7 +39,12 @@ Combined Strategy) — see master spec Sections 4–7.
 - **Sources:** Coinbase Exchange public candles endpoint (no auth, product
   `BTC-USD`, daily granularity) and Kraken public REST
   (`GET /0/public/OHLC`, no auth, pair `XBTUSD`, interval `1440` = daily).
-- **Coverage:** 2014-01-01 → present via Coinbase. Kraken only covers the
+- **Coverage:** 2015-07-20 → present via Coinbase (confirmed by Milestone 3
+  validation as Coinbase's actual earliest available daily BTC-USD
+  candle -- not a gap or an ingestion defect; the validator found zero
+  gaps within that range). This supersedes this document's earlier
+  "2014-01-01" target date, which was an assumption made before live data
+  confirmed Coinbase's real history floor. Kraken only covers the
   trailing ~720 daily candles (~2 years) — see correction note below.
 - **Rationale:** both free, no-auth, US-accessible (satisfies the project's
   data-source rule — no geoblocking risk).
@@ -52,7 +57,8 @@ Combined Strategy) — see master spec Sections 4–7.
   Kraken's own API docs after a live ingestion run only returned 721 rows.
   Corrected roles:
   - **Coinbase is now primary/reference** for all strategy and backtest
-    logic — its `/candles` endpoint genuinely paginates back to 2014.
+    logic — its `/candles` endpoint paginates back to the exchange's
+  earliest available data (2015-07-20 for BTC-USD daily, per Milestone 3).
   - **Kraken is a recent-period cross-check only**, valid for roughly the
     trailing 2 years. Any Section 50 cross-validation claim is limited to
     that overlapping recent window, not the full history.
@@ -63,8 +69,10 @@ Combined Strategy) — see master spec Sections 4–7.
     Phase 1, flagged as a Section 13 open item instead.
 
 ### 2.2 Deferred/appendix dataset
-- Pre-2014 BTC price history (Mt. Gox era and early exchanges) — lower
-  data quality, different market structure. Not part of the primary
+- Pre-2015-07 BTC price history (Mt. Gox era and early exchanges, plus the
+  2014–mid-2015 window that predates Coinbase's own daily BTC-USD data) —
+  lower data quality, different market structure, and not retrievable from
+  either of this project's primary sources. Not part of the primary
   research set. May be added later as an explicitly-labeled low-confidence
   appendix if cycle-level sample size becomes a binding constraint.
 
@@ -174,7 +182,8 @@ per-cycle regime variation. Mandatory before any strategy is called
 ## 11. Walk-forward methodology
 
 Train → Validate → Locked Test, then roll forward. Exact window lengths
-chosen in Phase 8 once total available history (2014–present ≈ 11+ years
+chosen in Phase 8 once total available history (2015-07 → present ≈ 11+
+years
 daily) is confirmed against the number of BTC cycles available. No feature,
 scaler, or parameter may be fit using data outside its train window.
 
@@ -197,7 +206,7 @@ retained by default (master spec Section 37).
   history length).
 - Whether 4H granularity is needed for swing research (Phase 4, only if
   daily proves insufficient).
-- Whether pre-2014 appendix data gets added (only if cycle-level sample
+- Whether pre-2015-07 appendix data gets added (only if cycle-level sample
   size is a binding constraint by Phase 3).
 - Whether a second full-history source is worth adding (e.g. Kraken's
   bulk OHLCVT archive, manually downloaded, or another exchange's public
