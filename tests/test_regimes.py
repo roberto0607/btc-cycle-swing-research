@@ -71,11 +71,18 @@ def test_classify_bear():
     assert out["regime"].iloc[0] == "BEAR"
 
 
-def test_classify_recovery():
-    # above sma_50 but still below sma_200
+def test_classify_early_recovery():
+    # above sma_50 but still below sma_200, AND still deep underwater
+    df = _base_df([_row(close=70, sma_50=65, sma_200=80, drawdown=-0.60, rsi_14=55)])
+    out = classify_regime(df)
+    assert out["regime"].iloc[0] == "EARLY_RECOVERY"
+
+
+def test_classify_late_recovery():
+    # above sma_50 but still below sma_200, but drawdown has shrunk past the -50% cutoff
     df = _base_df([_row(close=70, sma_50=65, sma_200=80, drawdown=-0.30, rsi_14=55)])
     out = classify_regime(df)
-    assert out["regime"].iloc[0] == "RECOVERY"
+    assert out["regime"].iloc[0] == "LATE_RECOVERY"
 
 
 def test_classify_accumulation():
@@ -103,7 +110,7 @@ def test_classify_exhaustive_no_nulls_when_inputs_complete():
     out = classify_regime(df)
     assert out["regime"].notnull().all()
     assert set(out["regime"].unique()) <= {
-        "BEAR", "ACCUMULATION", "RECOVERY", "BULL", "LATE_BULL", "DISTRIBUTION"
+        "BEAR", "ACCUMULATION", "EARLY_RECOVERY", "LATE_RECOVERY", "BULL", "LATE_BULL", "DISTRIBUTION"
     }
 
 
@@ -170,3 +177,46 @@ def test_regime_conditional_stats_includes_all_baseline_and_regime_rows():
     all_n = stats.loc[stats["regime"] == "ALL", "n"].iloc[0]
     regime_n_sum = stats.loc[stats["regime"] != "ALL", "n"].sum()
     assert all_n == regime_n_sum
+
+
+def test_early_vs_late_recovery_split_separates_designed_risk_difference():
+    """
+    Validates the mechanism behind the EARLY/LATE_RECOVERY split (not a
+    live-data claim): construct a series where deep-drawdown ("early")
+    bounces are, by design, more likely to roll over into a further
+    decline than shallow-drawdown ("late") bounces, and confirm
+    classify_regime + regime_conditional_stats actually reflects that
+    difference -- i.e. the split doesn't just rename RECOVERY, it
+    genuinely separates rows with different forward outcomes.
+    """
+    rng = np.random.default_rng(5)
+    n = 600
+    dates = pd.date_range("2024-01-01", periods=n, freq="D", tz="UTC")
+
+    # Half the series: deep drawdown ("early") bounces that mostly fail.
+    # Half: shallow drawdown ("late") bounces that mostly hold.
+    is_early = np.arange(n) < n // 2
+    drawdown = np.where(is_early, rng.uniform(-0.80, -0.55, n), rng.uniform(-0.45, -0.20, n))
+
+    # Forward drift designed to differ: early bounces drift down, late ones up.
+    drift = np.where(is_early, -0.002, 0.002)
+    close = 100 * np.cumprod(1 + drift + rng.normal(0, 0.01, n))
+
+    df = pd.DataFrame(
+        {
+            "timestamp": dates,
+            "close": close,
+            "sma_50": close * 0.95,  # keep close > sma_50 throughout (recovery zone)
+            "sma_200": close * 1.5,  # keep close < sma_200 throughout (recovery zone)
+            "drawdown_from_ath": drawdown,
+            "rsi_14": 50.0,
+        }
+    )
+    classified = classify_regime(df)
+    assert set(classified["regime"].dropna().unique()) <= {"EARLY_RECOVERY", "LATE_RECOVERY"}
+
+    stats = regime_conditional_stats(classified, horizon=30)
+    early_row = stats[stats["regime"] == "EARLY_RECOVERY"]
+    late_row = stats[stats["regime"] == "LATE_RECOVERY"]
+    assert not early_row.empty and not late_row.empty
+    assert early_row["mean_forward_return"].iloc[0] < late_row["mean_forward_return"].iloc[0]

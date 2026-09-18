@@ -21,7 +21,8 @@ from src.regimes.definitions import REGIME_ORDER
 REGIME_COLORS = {
     "BEAR": "#8b0000",
     "ACCUMULATION": "#d4a017",
-    "RECOVERY": "#4682b4",
+    "EARLY_RECOVERY": "#1e5a8a",
+    "LATE_RECOVERY": "#4682b4",
     "BULL": "#2e8b57",
     "LATE_BULL": "#98fb98",
     "DISTRIBUTION": "#ff8c00",

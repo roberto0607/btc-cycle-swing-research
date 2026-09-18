@@ -13,6 +13,7 @@ import pandas as pd
 
 from src.regimes.definitions import (
     BEAR_MAX_DRAWDOWN,
+    EARLY_RECOVERY_MAX_DRAWDOWN,
     LATE_BULL_MAX_DRAWDOWN,
     LATE_BULL_RSI_THRESHOLD,
     REQUIRED_COLUMNS,
@@ -37,11 +38,18 @@ def classify_regime(df: pd.DataFrame) -> pd.DataFrame:
     is_bull = above_50 & above_200 & ~is_late_bull
     is_distribution = ~above_50 & above_200
     is_bear = ~above_50 & ~above_200 & (drawdown <= BEAR_MAX_DRAWDOWN)
-    is_recovery = above_50 & ~above_200
+    is_early_recovery = above_50 & ~above_200 & (drawdown <= EARLY_RECOVERY_MAX_DRAWDOWN)
+    is_late_recovery = above_50 & ~above_200 & (drawdown > EARLY_RECOVERY_MAX_DRAWDOWN)
     is_accumulation = ~above_50 & ~above_200 & (drawdown > BEAR_MAX_DRAWDOWN)
 
-    conditions = [is_late_bull, is_bull, is_distribution, is_bear, is_recovery, is_accumulation]
-    choices = ["LATE_BULL", "BULL", "DISTRIBUTION", "BEAR", "RECOVERY", "ACCUMULATION"]
+    conditions = [
+        is_late_bull, is_bull, is_distribution, is_bear,
+        is_early_recovery, is_late_recovery, is_accumulation,
+    ]
+    choices = [
+        "LATE_BULL", "BULL", "DISTRIBUTION", "BEAR",
+        "EARLY_RECOVERY", "LATE_RECOVERY", "ACCUMULATION",
+    ]
 
     regime = np.select(conditions, choices, default=None)
     regime = pd.Series(regime, index=out.index).where(has_inputs, None)
