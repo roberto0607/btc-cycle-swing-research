@@ -29,17 +29,21 @@ Instruction 13).
 ## Milestone status
 
 - [x] Milestone 1 — Project initialization
-- [ ] Milestone 2 — Data acquisition
-- [ ] Milestone 3 — Data validation
-- [ ] Milestone 4 — Feature engineering
-- [ ] Milestone 5 — Exploratory analysis
-- [ ] Milestone 6 — Cycle research
-- [ ] Milestone 7 — Pullback research
-- [ ] Milestone 8 — Deterministic strategy
-- [ ] Milestone 9 — Backtester
-- [ ] Milestone 10 — Robustness
-- [ ] Milestone 11 — Walk-forward
-- [ ] Milestone 12 — ML dataset
-- [ ] Milestone 13 — ML baseline
-- [ ] Milestone 14 — ML comparison
-- [ ] Milestone 15 — Paper validation
+- [x] Milestone 2 — Data acquisition
+- [x] Milestone 3 — Data validation
+- [x] Milestone 4 — Feature engineering
+- [x] Milestone 5 — Exploratory analysis
+- [x] Milestone 6 — Cycle research
+- [x] Milestone 7 — Pullback research
+- [x] Milestone 8 — Deterministic strategy
+- [x] Milestone 9 — Backtester (2 passes: engine + full benchmark comparison)
+- [x] Milestone 10 — Robustness
+- [x] Milestone 11 — Walk-forward
+- [x] Milestone 12 — ML baseline + comparison (logistic regression; REJECTED, see docs/RESEARCH_REPORT.md)
+- [ ] Milestone 13 — ML escalation (Random Forest/XGBoost) — not pursued; Milestone 12's baseline
+      showed no exploitable signal worth escalating complexity for (see RESEARCH_REPORT.md §15, §17)
+- [ ] Milestone 14 — (folded into Milestone 12; single ML comparison pass was sufficient)
+- [ ] Milestone 15 — Paper validation — next up
+
+See `docs/RESEARCH_REPORT.md` for the full synthesized research findings
+across Milestones 1-12.
