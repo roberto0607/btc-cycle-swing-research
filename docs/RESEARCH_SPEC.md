@@ -200,6 +200,39 @@ retained by default (master spec Section 37).
 
 ---
 
+## 12.5. Milestone 9 finding — swing layer dropped, Cycle Only is the strategy
+
+**Decision (2026-09-19):** Milestone 8's tactical swing overlay (the
+extension-percentile-triggered reduce/re-enter layer on top of core
+regime allocation) is DROPPED. Milestone 9's full backtest comparison
+showed Cycle + Swing losing to Cycle Only on every metric (CAGR,
+max drawdown, Sharpe, Sortino, Calmar) across all four cost scenarios
+(optimistic/baseline/pessimistic/stress) on the real Coinbase dataset —
+not a single-scenario artifact. Per the project's own "complexity must
+earn its place" principle (Section 37, originally stated for ML, applied
+here to the swing layer): it didn't, so it's removed rather than kept on
+the strength of the underlying Milestone 7 finding alone (which was real,
+but didn't survive translation into an actual traded, cost-bearing
+signal).
+
+**Cycle Only** (src/strategies/cycle.py's regime → core allocation table,
+Milestone 6/8) is now THE strategy going forward into Phase 7
+(robustness) and beyond. It beat Buy & Hold on Sharpe (1.28 vs 1.09) and
+Sortino (1.54 vs 1.47) and roughly halved max drawdown (-56.8% vs
+-83.8%) at baseline costs — the core cycle-allocation hypothesis holds up
+in a real backtest, even though the tactical refinement on top of it did
+not.
+
+The swing engine code (src/strategies/swing.py) is NOT deleted — it
+stays as a documented, tested negative result. Revisiting its
+EXTENSION_TRIGGER_PERCENTILE/EXTENSION_REENTRY_PERCENTILE thresholds with
+a real parameter sweep remains a legitimate future step, but only once
+walk-forward validation (Phase 8) exists to check any retuned threshold
+against — tuning it against the same backtest that already rejected it
+would be curve-fitting, not robustness testing (Section 49).
+
+---
+
 ## 13. Open items to revisit
 
 - Exact walk-forward window lengths (Phase 8, once EDA confirms usable
@@ -213,3 +246,6 @@ retained by default (master spec Section 37).
   API) to restore genuine multi-year cross-validation — currently
   Coinbase is the only full-history source; Kraken cross-checks only the
   trailing ~2 years.
+- Whether the swing layer's thresholds are worth revisiting via proper
+  parameter sweep + walk-forward validation (see Section 12.5) — deferred
+  until Phase 8 exists to validate against.
