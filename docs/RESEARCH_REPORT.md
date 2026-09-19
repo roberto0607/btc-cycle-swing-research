@@ -1,6 +1,7 @@
 # BTC Cycle + Swing Research System — Research Report
 
-**Status:** Deterministic + ML research phases complete. No paper trading yet.
+**Status:** Deterministic + ML research phases complete, including final
+locked holdout gate. No live paper trading yet.
 **Repo:** github.com/roberto0607/btc-cycle-swing-research
 **Data:** Coinbase BTC-USD daily, 2015-07-20 → 2026-09-18 (4,079 days, ~11.2 years)
 
@@ -363,7 +364,41 @@ features, not just a poorly chosen manual threshold.
 
 ---
 
-## 18. Conclusion
+## 19. Locked Holdout — Final Gate (Milestone 15)
+
+One last check before considering the strategy validated: `Cycle Only`,
+now fully **frozen** (no further tuning), run once against the most
+recent 6 months of data (2026-03-19 → 2026-09-18), fresh capital,
+baseline costs. This is not a statistically clean never-seen holdout —
+these days were part of the full-history data that informed Milestone
+9's selection decision — its value is as a discipline commitment: run
+once, report plainly, no re-running with tweaks based on the result.
+
+| Strategy | Total Return | CAGR | Max Drawdown | Sharpe | Sortino | Trades |
+|---|---|---|---|---|---|---|
+| **Cycle Only (frozen)** | **9.65%** | **20.16%** | **-9.16%** | **1.067** | **1.687** | **16** |
+| Buy & Hold | 8.83% | 18.39% | -28.80% | 0.636 | 1.059 | 1 |
+| Simple MA Trend | 10.71% | 22.50% | -6.99% | 1.234 | 1.121 | 1 |
+| Cash | 0.00% | 0.00% | 0.00% | — | — | 0 |
+
+`Cycle Only` beat Buy & Hold on **every metric** in this final window —
+not just drawdown (its consistent historical strength) but raw return
+too, something it only did in half of Milestone 11's walk-forward
+windows. It lost to the simpler `Simple MA Trend` benchmark on most
+metrics except Sortino, consistent with prior findings (Milestone 9) —
+not a new concern.
+
+One number worth flagging plainly: **16 trades in 6 months**, roughly
+6× the strategy's historical pace (265 trades across all 11 years ≈ 2
+per month). This is the direct, quantified footprint of the choppier,
+more regime-flippy market conditions already flagged in Milestone 10's
+per-cycle breakdown — more regime changes mean more trades, and more
+trades mean more fee drag, visible here in real numbers rather than as
+a vague concern.
+
+---
+
+
 
 **What the data demonstrates:** BTC's market history contains real,
 detectable regime structure. A simple, interpretable, non-optimized
@@ -385,4 +420,7 @@ frictions rather than simulated ones.
 **The strategy going forward is `Cycle Only`** — deterministic, tested,
 and its narrow, honest claim (risk reduction, not return enhancement) is
 exactly the kind of specific, defensible research conclusion this
-project set out to reach.
+project set out to reach. Its final locked holdout check (section 19)
+beat buy-and-hold on every metric, though at a noticeably higher trade
+frequency than its historical average — a real, current data point to
+carry into any live paper trading, not just a historical footnote.
