@@ -19,6 +19,19 @@ A NaN target_allocation (Milestone 4/8's feature warmup period) is
 treated as "no new decision yet" -- the engine holds whatever target was
 last known (or stays in cash if none yet), rather than inventing a 0 or
 forward-filling blindly.
+
+TRADE-ONLY-ON-CHANGE, explicitly (a real bug caught only once this ran
+against real, moving prices -- pass 1's tests used flat/constant prices,
+which masked it): the engine only issues a trade when the TARGET
+allocation value itself changes from what was last acted on. It does NOT
+re-trade every day just because natural price movement caused the
+portfolio's actual BTC weight to drift slightly away from an unchanged
+target -- that would mean a strategy holding a flat "70% BTC" target
+literally every day trades daily to correct for ordinary price noise,
+which is neither realistic nor what any of the strategy/benchmark logic
+intends. Drift between target-changes is accepted and left alone, exactly
+like a real investor who rebalances on new information, not on every
+tick.
 """
 
 from __future__ import annotations
@@ -62,6 +75,7 @@ def run_backtest(
     result = BacktestResult(portfolio=portfolio)
 
     pending_target: float | None = None
+    last_executed_target: float | None = None
     n = len(df)
 
     for t in range(n):
@@ -69,9 +83,16 @@ def run_backtest(
         close_price = df[price_col].iloc[t]
         timestamp = df[timestamp_col].iloc[t]
 
-        # Fill any pending decision from yesterday at TODAY's open.
-        if pending_target is not None and pd.notna(open_price):
+        # Fill any pending decision from yesterday at TODAY's open --
+        # but only if it's actually a NEW target, not a repeat of what's
+        # already held (see module docstring: trade-only-on-change).
+        if (
+            pending_target is not None
+            and pd.notna(open_price)
+            and (last_executed_target is None or abs(pending_target - last_executed_target) > 1e-9)
+        ):
             portfolio.rebalance_to_target(pending_target, open_price, costs, timestamp=timestamp)
+            last_executed_target = pending_target
 
         # Mark to market at today's close.
         value = portfolio.total_value(close_price) if pd.notna(close_price) else portfolio.cash
@@ -98,14 +119,20 @@ def _run_same_close(
     """UNREALISTIC comparison-only path -- see execution.py docstring."""
     portfolio = Portfolio(cash=initial_capital)
     result = BacktestResult(portfolio=portfolio)
+    last_executed_target: float | None = None
 
     for t in range(len(df)):
         close_price = df[price_col].iloc[t]
         timestamp = df[timestamp_col].iloc[t]
         target = df[allocation_col].iloc[t]
 
-        if pd.notna(target) and pd.notna(close_price):
+        if (
+            pd.notna(target)
+            and pd.notna(close_price)
+            and (last_executed_target is None or abs(target - last_executed_target) > 1e-9)
+        ):
             portfolio.rebalance_to_target(target, close_price, costs, timestamp=timestamp)
+            last_executed_target = target
 
         value = portfolio.total_value(close_price) if pd.notna(close_price) else portfolio.cash
         result.portfolio_values.append(value)
